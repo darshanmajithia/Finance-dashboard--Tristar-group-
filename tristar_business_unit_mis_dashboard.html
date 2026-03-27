@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tristar Group — Business Unit MIS Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6FA;--white:#FFF;--surface:#FFF;--border:#E8ECF2;--text:#1A1D26;--text-sec:#6B7280;--text-dim:#9CA3AF;--shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);--shadow-lg:0 4px 12px rgba(0,0,0,.06);--r:16px;--purple:#7C5CFC;--purple-l:#F0ECFF;--green:#10B981;--green-l:#ECFDF5;--orange:#F59E0B;--orange-l:#FFF8EB;--blue:#3B82F6;--blue-l:#EFF6FF;--cyan:#06B6D4;--cyan-l:#ECFEFF;--red:#EF4444;--red-l:#FEF2F2;--pink:#EC4899;--sb:#1A1D26}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--sb);padding:28px 20px;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10;border-radius:0 24px 24px 0}
+.sb-brand{display:flex;align-items:center;gap:12px;margin-bottom:36px;padding:0 4px}
+.sb-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--purple),#A78BFA);border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff}
+.sb-name{font-size:17px;font-weight:700;color:#fff}.sb-name span{color:var(--purple)}
+.sb-sec{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#6B7280;padding:0 8px;margin:24px 0 10px}
+.sb-nav{list-style:none}.sb-nav li{padding:11px 14px;border-radius:12px;font-size:14px;font-weight:500;color:#9CA3AF;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;margin-bottom:2px}
+.sb-nav li:hover{background:rgba(255,255,255,.06);color:#fff}
+.sb-nav li.active{background:var(--purple);color:#fff;font-weight:600}
+.sb-footer{margin-top:auto;background:linear-gradient(135deg,var(--purple),#6D28D9);border-radius:16px;padding:20px 16px;color:#fff}
+.sb-footer h4{font-size:14px;font-weight:700;margin-bottom:6px}
+.sb-footer p{font-size:11px;color:rgba(255,255,255,.7);line-height:1.5}
+.sb-footer a{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;color:#fff;text-decoration:none;background:rgba(255,255,255,.2);padding:6px 14px;border-radius:8px}
+.main{margin-left:240px;flex:1;min-height:100vh}
+.topbar{padding:20px 32px;display:flex;align-items:center;justify-content:space-between;background:var(--white);border-bottom:1px solid var(--border)}
+.topbar h2{font-size:22px;font-weight:700}.topbar h2 span{color:var(--purple)}
+.topbar p{font-size:13px;color:var(--text-sec);margin-top:2px}
+.topbar-r{display:flex;gap:12px}.topbar-b{background:var(--bg);border:1px solid var(--border);padding:8px 16px;border-radius:10px;font-size:13px;color:var(--text-sec);font-weight:500}.topbar-b strong{color:var(--text)}
+.content{padding:24px 32px 40px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.kpi-card .ki{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px}
+.kpi-card:nth-child(1) .ki{background:var(--purple-l)}.kpi-card:nth-child(2) .ki{background:var(--green-l)}.kpi-card:nth-child(3) .ki{background:var(--orange-l)}.kpi-card:nth-child(4) .ki{background:var(--blue-l)}.kpi-card:nth-child(5) .ki{background:var(--cyan-l)}
+.kpi-card:nth-child(1){border-top:3px solid var(--purple)}.kpi-card:nth-child(2){border-top:3px solid var(--green)}.kpi-card:nth-child(3){border-top:3px solid var(--orange)}.kpi-card:nth-child(4){border-top:3px solid var(--blue)}.kpi-card:nth-child(5){border-top:3px solid var(--cyan)}
+.kl{font-size:12px;color:var(--text-sec);font-weight:500;margin-bottom:6px}
+.kv{font-size:28px;font-weight:800;font-family:'Space Mono',monospace}
+.km{display:flex;align-items:center;gap:8px;margin-top:8px}
+.kt{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.kt.up{background:var(--green-l);color:var(--green)}.kt.dn{background:var(--red-l);color:var(--red)}.kt.fl{background:var(--orange-l);color:var(--orange)}
+.ks{color:var(--text-dim);font-size:11px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.g32{display:grid;grid-template-columns:3fr 2fr;gap:20px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--shadow)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.ct{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px}
+.ct .dot{width:10px;height:10px;border-radius:50%}
+.cb{font-size:11px;padding:4px 12px;border-radius:8px;background:var(--bg);color:var(--text-sec);font-weight:600}
+table{width:100%;border-collapse:separate;border-spacing:0}
+th{text-align:left;padding:12px 14px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);font-weight:600;background:var(--bg);border-bottom:1px solid var(--border)}
+th:first-child{border-radius:10px 0 0 0}th:last-child{border-radius:0 10px 0 0}th:not(:first-child){text-align:right}
+td{padding:12px 14px;font-size:12px;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace}
+td:not(:first-child){text-align:right}td:first-child{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:13px}
+tr:last-child td{border-bottom:none}tr:hover td{background:var(--bg)}
+tr.tot td{border-top:2px solid var(--purple);font-weight:800;color:var(--purple);background:var(--purple-l)}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.cw{position:relative;height:280px}.cws{position:relative;height:220px}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ri{background:var(--bg);border-radius:12px;padding:16px;border-left:4px solid;transition:transform .15s}
+.ri:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.ri.ok{border-left-color:var(--green)}.ri.pn{border-left-color:var(--orange)}.ri.od{border-left-color:var(--red)}
+.rl{font-size:13px;font-weight:600;margin-bottom:4px}.rs{font-size:12px;font-weight:500}
+.rs.ok{color:var(--green)}.rs.pn{color:var(--orange)}.rs.od{color:var(--red)}
+.tc{display:none}.tc.active{display:block}
+.footer{padding:20px 32px;display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);border-top:1px solid var(--border);background:var(--white)}
+.footer a{color:var(--purple);text-decoration:none;font-weight:600}
+@media(max-width:1280px){.kpi-row{grid-template-columns:repeat(3,1fr)}.g2,.g32{grid-template-columns:1fr}}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.kpi-row{grid-template-columns:1fr 1fr}.rg{grid-template-columns:1fr}.content{padding:16px}}
+</style></head><body>
+<div class="sidebar">
+<div class="sb-brand"><div class="sb-logo">TG</div><div class="sb-name">Tristar <span>MIS</span></div></div>
+<div class="sb-sec">Menu</div>
+<ul class="sb-nav">
+<li class="active" onclick="sw('overview',this)">📊 Overview</li>
+<li onclick="sw('variance',this)">📈 Variance Analysis</li>
+<li onclick="sw('kpis',this)">🎯 KPIs & Ratios</li>
+<li onclick="sw('recon',this)">✅ Reconciliations</li>
+<li onclick="sw('apar',this)">💳 AP / AR Ageing</li>
+</ul>
+<div class="sb-sec">General</div>
+<ul class="sb-nav"><li>⚙️ Settings</li><li>❓ Help Center</li></ul>
+<div class="sb-footer"><h4>Portfolio Project</h4><p>Built by CA Darshan Majithia for Tristar Group Business Analyst role</p><a href="https://darshanmajithia.github.io" target="_blank">View Portfolio →</a></div>
+</div>
+<div class="main">
+<div class="topbar"><div><h2>Welcome, <span>Tristar Group</span> 📊</h2><p>Business Unit MIS & Financial Performance Dashboard</p></div><div class="topbar-r"><div class="topbar-b">Period: <strong>Mar 2026</strong></div><div class="topbar-b">FY: <strong>2025-26</strong></div><div class="topbar-b">Currency: <strong>AED</strong></div></div></div>
+<div class="content">
+<!-- OVERVIEW -->
+<div class="tc active" id="tab-overview">
+<div class="kpi-row">
+<div class="kpi-card"><div class="ki">💰</div><div class="kl">Revenue (YTD)</div><div class="kv">482.3M</div><div class="km"><span class="kt up">▲ 8.2%</span><span class="ks">vs Budget</span></div></div>
+<div class="kpi-card"><div class="ki">📈</div><div class="kl">EBITDA (YTD)</div><div class="kv">67.8M</div><div class="km"><span class="kt up">▲ 4.1%</span><span class="ks">vs Prior Year</span></div></div>
+<div class="kpi-card"><div class="ki">🎯</div><div class="kl">Net Profit Margin</div><div class="kv">9.4%</div><div class="km"><span class="kt dn">▼ 0.6pp</span><span class="ks">vs Budget 10%</span></div></div>
+<div class="kpi-card"><div class="ki">⏱️</div><div class="kl">Working Capital Days</div><div class="kv">38</div><div class="km"><span class="kt up">▲ 4 days</span><span class="ks">improved vs PY</span></div></div>
+<div class="kpi-card"><div class="ki">🚛</div><div class="kl">Fleet Utilization</div><div class="kv">87.3%</div><div class="km"><span class="kt fl">— 0.2%</span><span class="ks">vs target 88%</span></div></div>
+</div>
+<div class="g32">
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--purple)"></span> Revenue by Vertical — Monthly</div><span class="cb">6-Month View</span></div><div class="cw"><canvas id="c1"></canvas></div></div>
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--blue)"></span> P&L Summary</div><span class="cb">YTD AED '000</span></div>
+<table><thead><tr><th>Line Item</th><th>Actual</th><th>Budget</th><th>Var %</th></tr></thead><tbody>
+<tr><td>Revenue</td><td>482,300</td><td>445,800</td><td class="pos">+8.2%</td></tr>
+<tr><td>Direct Costs</td><td>(328,400)</td><td>(303,500)</td><td class="neg">+8.2%</td></tr>
+<tr><td>Gross Profit</td><td>153,900</td><td>142,300</td><td class="pos">+8.2%</td></tr>
+<tr><td>SG&A</td><td>(72,100)</td><td>(68,400)</td><td class="neg">+5.4%</td></tr>
+<tr><td>EBITDA</td><td>67,800</td><td>65,100</td><td class="pos">+4.1%</td></tr>
+<tr><td>Depreciation</td><td>(18,200)</td><td>(17,500)</td><td class="neg">+4.0%</td></tr>
+<tr><td>Finance Costs</td><td>(4,300)</td><td>(3,000)</td><td class="neg">+43.3%</td></tr>
+<tr class="tot"><td>Net Profit</td><td>45,300</td><td>44,600</td><td class="pos">+1.6%</td></tr>
+</tbody></table></div></div>
+<div class="g2">
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--green)"></span> EBITDA Bridge</div><span class="cb">Budget → Actual (AED M)</span></div><div class="cw"><canvas id="c2"></canvas></div></div>
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--orange)"></span> Revenue Mix</div><span class="cb">By Vertical (YTD)</span></div><div class="cw"><canvas id="c3"></canvas></div></div>
+</div></div>
+<!-- VARIANCE -->
+<div class="tc" id="tab-variance">
+<div class="card" style="margin-bottom:24px"><div class="ch"><div class="ct"><span class="dot" style="background:var(--orange)"></span> Variance — Budget vs Actual by Vertical</div><span class="cb">AED '000</span></div>
+<table><thead><tr><th>Business Vertical</th><th>Budget</th><th>Actual</th><th>Variance</th><th>Var %</th><th>Prior Year</th><th>YoY %</th></tr></thead><tbody>
+<tr><td>Road Transport & Warehousing</td><td>178,200</td><td>191,400</td><td class="pos">+13,200</td><td class="pos">+7.4%</td><td>172,300</td><td class="pos">+11.1%</td></tr>
+<tr><td>Maritime Logistics</td><td>124,500</td><td>135,800</td><td class="pos">+11,300</td><td class="pos">+9.1%</td><td>128,100</td><td class="pos">+6.0%</td></tr>
+<tr><td>Fuel Farms</td><td>82,300</td><td>88,600</td><td class="pos">+6,300</td><td class="pos">+7.7%</td><td>79,400</td><td class="pos">+11.6%</td></tr>
+<tr><td>Remote & Commercial Fuels</td><td>42,800</td><td>46,100</td><td class="pos">+3,300</td><td class="pos">+7.7%</td><td>43,600</td><td class="pos">+5.7%</td></tr>
+<tr><td>Chemical Terminal (JAFZA)</td><td>18,000</td><td>20,400</td><td class="pos">+2,400</td><td class="pos">+13.3%</td><td>16,800</td><td class="pos">+21.4%</td></tr>
+<tr class="tot"><td>Total Revenue</td><td>445,800</td><td>482,300</td><td class="pos">+36,500</td><td class="pos">+8.2%</td><td>440,200</td><td class="pos">+9.6%</td></tr>
+</tbody></table></div>
+<div class="g2">
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--green)"></span> Budget vs Actual</div><span class="cb">Revenue by Vertical</span></div><div class="cw"><canvas id="c4"></canvas></div></div>
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--red)"></span> Cost Driver Variance</div><span class="cb">AED '000</span></div>
+<table><thead><tr><th>Cost Category</th><th>Budget</th><th>Actual</th><th>Var</th><th>Flag</th></tr></thead><tbody>
+<tr><td>Fuel & Bunker</td><td>98,200</td><td>108,500</td><td class="neg">+10,300</td><td><span class="kt dn">⚠ Unfav</span></td></tr>
+<tr><td>Fleet Maintenance</td><td>24,800</td><td>26,100</td><td class="neg">+1,300</td><td><span class="kt dn">Unfav</span></td></tr>
+<tr><td>Crew & Driver Costs</td><td>52,400</td><td>51,800</td><td class="pos">-600</td><td><span class="kt up">Fav</span></td></tr>
+<tr><td>Port & Terminal Charges</td><td>38,500</td><td>39,200</td><td class="neg">+700</td><td><span class="kt fl">Marginal</span></td></tr>
+<tr><td>Insurance & Compliance</td><td>18,600</td><td>17,900</td><td class="pos">-700</td><td><span class="kt up">Fav</span></td></tr>
+<tr><td>Depreciation</td><td>17,500</td><td>18,200</td><td class="neg">+700</td><td><span class="kt fl">Marginal</span></td></tr>
+<tr><td>Admin & Overheads</td><td>22,100</td><td>21,400</td><td class="pos">-700</td><td><span class="kt up">Fav</span></td></tr>
+</tbody></table></div></div></div>
+<!-- KPIs -->
+<div class="tc" id="tab-kpis">
+<div class="kpi-row">
+<div class="kpi-card"><div class="ki">📊</div><div class="kl">Gross Margin</div><div class="kv">31.9%</div><div class="km"><span class="kt fl">— 0.0pp</span></div></div>
+<div class="kpi-card"><div class="ki">💎</div><div class="kl">EBITDA Margin</div><div class="kv">14.1%</div><div class="km"><span class="kt dn">▼ 0.5pp</span></div></div>
+<div class="kpi-card"><div class="ki">💵</div><div class="kl">Free Cash Flow</div><div class="kv">28.4M</div><div class="km"><span class="kt up">▲ 12%</span></div></div>
+<div class="kpi-card"><div class="ki">⚖️</div><div class="kl">Net Debt/EBITDA</div><div class="kv">2.1x</div><div class="km"><span class="kt up">Improved</span></div></div>
+<div class="kpi-card"><div class="ki">🏆</div><div class="kl">ROCE</div><div class="kv">13.8%</div><div class="km"><span class="kt up">▲ 1.2pp</span></div></div>
+</div>
+<div class="g2">
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--purple)"></span> Operational KPIs by Vertical</div></div>
+<table><thead><tr><th>KPI</th><th>RTW</th><th>Maritime</th><th>Fuel Farms</th><th>Target</th></tr></thead><tbody>
+<tr><td>Asset Utilization %</td><td>87.3%</td><td>91.2%</td><td>78.5%</td><td>88.0%</td></tr>
+<tr><td>Revenue/Asset (AED K)</td><td>284</td><td>412</td><td>195</td><td>300</td></tr>
+<tr><td>Cost/Km (AED)</td><td>3.82</td><td>—</td><td>—</td><td>3.50</td></tr>
+<tr><td>Throughput (M Litres)</td><td>—</td><td>842</td><td>1,240</td><td>1,100</td></tr>
+<tr><td>Safety Incidents (YTD)</td><td>2</td><td>0</td><td>1</td><td>0</td></tr>
+<tr><td>On-Time Delivery %</td><td>96.1%</td><td>94.8%</td><td>98.2%</td><td>97.0%</td></tr>
+</tbody></table></div>
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--orange)"></span> Working Capital Trends</div><span class="cb">Days</span></div><div class="cw"><canvas id="c5"></canvas></div></div>
+</div>
+<div class="g2">
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--cyan)"></span> Turnover Ratios</div></div>
+<table><thead><tr><th>Metric</th><th>Current</th><th>PY</th><th>Benchmark</th><th>Status</th></tr></thead><tbody>
+<tr><td>AR Days (DSO)</td><td>52</td><td>58</td><td>45</td><td><span class="kt fl">Above target</span></td></tr>
+<tr><td>AP Days (DPO)</td><td>44</td><td>41</td><td>40</td><td><span class="kt up">Acceptable</span></td></tr>
+<tr><td>Inventory Days</td><td>30</td><td>25</td><td>28</td><td><span class="kt fl">Watch</span></td></tr>
+<tr><td>Cash Conversion Cycle</td><td>38</td><td>42</td><td>33</td><td><span class="kt up">Improving</span></td></tr>
+<tr><td>Current Ratio</td><td>1.32</td><td>1.28</td><td>1.25</td><td><span class="kt up">Healthy</span></td></tr>
+<tr><td>Quick Ratio</td><td>0.94</td><td>0.89</td><td>0.90</td><td><span class="kt up">Healthy</span></td></tr>
+</tbody></table></div>
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--green)"></span> Leverage & Returns</div></div>
+<table><thead><tr><th>Metric</th><th>Current</th><th>PY</th><th>Trend</th></tr></thead><tbody>
+<tr><td>Net Debt (AED M)</td><td>142.4</td><td>156.2</td><td><span class="kt up">▼ Deleveraging</span></td></tr>
+<tr><td>Debt/Equity</td><td>0.68</td><td>0.74</td><td><span class="kt up">Improving</span></td></tr>
+<tr><td>Interest Coverage</td><td>15.8x</td><td>14.2x</td><td><span class="kt up">Strong</span></td></tr>
+<tr><td>ROE</td><td>18.2%</td><td>16.8%</td><td><span class="kt up">▲ +1.4pp</span></td></tr>
+<tr><td>ROA</td><td>8.1%</td><td>7.4%</td><td><span class="kt up">▲ +0.7pp</span></td></tr>
+<tr><td>ROCE</td><td>13.8%</td><td>12.6%</td><td><span class="kt up">▲ +1.2pp</span></td></tr>
+</tbody></table></div></div></div>
+<!-- RECON -->
+<div class="tc" id="tab-recon">
+<div class="card" style="margin-bottom:24px"><div class="ch"><div class="ct"><span class="dot" style="background:var(--green)"></span> Month-End Reconciliation Status</div><span class="cb">March 2026</span></div>
+<div class="rg">
+<div class="ri ok"><div class="rl">Bank Reconciliation — UAE (7 accounts)</div><div class="rs ok">✓ Completed — 0 unreconciled items</div></div>
+<div class="ri ok"><div class="rl">Bank Reconciliation — Africa (4 accounts)</div><div class="rs ok">✓ Completed — 3 items pending clearance</div></div>
+<div class="ri ok"><div class="rl">Intercompany — HQ ↔ Subsidiaries</div><div class="rs ok">✓ Matched — AED 2.1M eliminated</div></div>
+<div class="ri pn"><div class="rl">Inventory — Fuel Farms (Guam + Africa)</div><div class="rs pn">⏳ In Progress — Physical count vs Oracle WMS pending</div></div>
+<div class="ri ok"><div class="rl">Supplier Ledger — Top 20 vendors</div><div class="rs ok">✓ Completed — 2 credit notes pending</div></div>
+<div class="ri pn"><div class="rl">Customer Ledger — Oil Majors</div><div class="rs pn">⏳ 3 of 8 confirmations received</div></div>
+<div class="ri ok"><div class="rl">Fixed Asset Register vs GL</div><div class="rs ok">✓ Matched — Depreciation run completed</div></div>
+<div class="ri od"><div class="rl">Petty Cash — Africa operations (3 sites)</div><div class="rs od">⚠ Overdue — 12 days since S. Sudan submission</div></div>
+<div class="ri ok"><div class="rl">Suspense Account Clearance</div><div class="rs ok">✓ Cleared — AED 84K allocated</div></div>
+<div class="ri ok"><div class="rl">VAT Reconciliation — UAE</div><div class="rs ok">✓ Filed — Q1 2026 return submitted</div></div>
+</div></div>
+<div class="g2">
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--blue)"></span> Completion Rate Trend</div></div><div class="cws"><canvas id="c6"></canvas></div></div>
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--red)"></span> Outstanding Items Ageing</div></div>
+<table><thead><tr><th>Category</th><th>0-7d</th><th>8-15d</th><th>16-30d</th><th>30+</th></tr></thead><tbody>
+<tr><td>Bank items</td><td>3</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Inventory variances</td><td>—</td><td>2</td><td>0</td><td>0</td></tr>
+<tr><td>Customer confirmations</td><td>2</td><td>3</td><td>0</td><td>0</td></tr>
+<tr><td>Petty cash</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+<tr><td>Suspense items</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+</tbody></table></div></div></div>
+<!-- AP/AR -->
+<div class="tc" id="tab-apar">
+<div class="g2">
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--red)"></span> AR Ageing</div><span class="cb">AED '000</span></div>
+<table><thead><tr><th>Customer Segment</th><th>Current</th><th>31-60</th><th>61-90</th><th>90+</th><th>Total</th></tr></thead><tbody>
+<tr><td>Oil Majors (Shell, BP, Total)</td><td>18,400</td><td>6,200</td><td>1,800</td><td>400</td><td>26,800</td></tr>
+<tr><td>ADNOC / ENOC / Emarat</td><td>12,100</td><td>3,800</td><td>900</td><td>0</td><td>16,800</td></tr>
+<tr><td>Defence & Government</td><td>8,600</td><td>4,200</td><td>2,100</td><td>1,400</td><td>16,300</td></tr>
+<tr><td>Chemical Distribution</td><td>3,200</td><td>1,100</td><td>300</td><td>0</td><td>4,600</td></tr>
+<tr><td>Other / Africa Ops</td><td>5,400</td><td>2,800</td><td>1,600</td><td>800</td><td>10,600</td></tr>
+<tr class="tot"><td>Total AR</td><td>47,700</td><td>18,100</td><td>6,700</td><td>2,600</td><td>75,100</td></tr>
+</tbody></table></div>
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--green)"></span> AR Distribution</div></div><div class="cw"><canvas id="c7"></canvas></div></div>
+</div>
+<div class="g2">
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--blue)"></span> AP Ageing</div><span class="cb">AED '000</span></div>
+<table><thead><tr><th>Vendor Category</th><th>Current</th><th>31-60</th><th>61-90</th><th>90+</th><th>Total</th></tr></thead><tbody>
+<tr><td>Fuel & Bunker Suppliers</td><td>22,800</td><td>5,400</td><td>800</td><td>0</td><td>29,000</td></tr>
+<tr><td>Fleet Maintenance</td><td>4,200</td><td>1,800</td><td>400</td><td>0</td><td>6,400</td></tr>
+<tr><td>Port & Terminal Operators</td><td>6,100</td><td>2,200</td><td>600</td><td>200</td><td>9,100</td></tr>
+<tr><td>Insurance & Compliance</td><td>3,800</td><td>0</td><td>0</td><td>0</td><td>3,800</td></tr>
+<tr><td>Other Vendors</td><td>8,400</td><td>3,100</td><td>900</td><td>300</td><td>12,700</td></tr>
+<tr class="tot"><td>Total AP</td><td>45,300</td><td>12,500</td><td>2,700</td><td>500</td><td>61,000</td></tr>
+</tbody></table></div>
+<div class="card"><div class="ch"><div class="ct"><span class="dot" style="background:var(--purple)"></span> Payment Queue — DOA Status</div></div>
+<table><thead><tr><th>Status</th><th>Count</th><th>Amount (K)</th><th>Avg Age</th></tr></thead><tbody>
+<tr><td>✅ Approved & Scheduled</td><td>42</td><td>14,200</td><td>3 days</td></tr>
+<tr><td>⏳ Pending L1</td><td>18</td><td>6,800</td><td>5 days</td></tr>
+<tr><td>⏳ Pending L2 (Finance Head)</td><td>7</td><td>8,400</td><td>4 days</td></tr>
+<tr><td>⚠️ PO/GRN Mismatch</td><td>5</td><td>2,100</td><td>8 days</td></tr>
+<tr><td>🔴 On Hold (Query)</td><td>3</td><td>1,800</td><td>12 days</td></tr>
+</tbody></table></div></div></div>
+</div>
+<div class="footer"><div>Built by <strong>CA Darshan Majithia</strong> — Finance Business Partner | <a href="https://darshanmajithia.github.io" target="_blank">darshanmajithia.github.io</a></div><div>Sample data for portfolio demonstration</div></div>
+</div>
+<script>
+function sw(id,el){document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.sb-nav li').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');if(el)el.classList.add('active');setTimeout(()=>go(),50)}
+const P='#7C5CFC',G='#10B981',O='#F59E0B',B='#3B82F6',Cn='#06B6D4',R='#EF4444',Pk='#EC4899',D='#D1D5DB';
+Chart.defaults.color='#6B7280';Chart.defaults.borderColor='#E8ECF2';Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
+function go(){
+var e=document.getElementById('c1');if(e&&!e._d){e._d=1;new Chart(e,{type:'bar',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'Road Transport',data:[30.2,31.8,33.1,31.5,32.4,32.4],backgroundColor:P,borderRadius:4},{label:'Maritime',data:[20.5,22.1,23.8,21.9,23.2,24.3],backgroundColor:Cn,borderRadius:4},{label:'Fuel Farms',data:[13.8,14.2,15.1,14.6,15.3,15.6],backgroundColor:O,borderRadius:4},{label:'Remote/Comm.',data:[6.8,7.2,7.9,7.4,8.1,8.7],backgroundColor:G,borderRadius:4},{label:'Chemical',data:[2.8,3.1,3.6,3.2,3.5,4.2],backgroundColor:Pk,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,title:{display:true,text:'AED M'}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:14,font:{size:11}}}}}})}
+e=document.getElementById('c2');if(e&&!e._d){e._d=1;new Chart(e,{type:'bar',data:{labels:['Budget\nEBITDA','Revenue\nUpside','Fuel Cost\nOverrun','Crew\nSavings','Port\nCharges','Other\nNet','Actual\nEBITDA'],datasets:[{data:[65.1,11.6,-10.3,0.6,-0.7,1.5,67.8],backgroundColor:[D,G,R,G,R,G,P],borderRadius:6,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false}},y:{title:{display:true,text:'AED M'},min:50,max:75}},plugins:{legend:{display:false}}}})}
+e=document.getElementById('c3');if(e&&!e._d){e._d=1;new Chart(e,{type:'doughnut',data:{labels:['Road Transport','Maritime','Fuel Farms','Remote/Comm.','Chemical'],datasets:[{data:[39.7,28.2,18.4,9.6,4.2],backgroundColor:[P,Cn,O,G,Pk],borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{boxWidth:10,padding:12,font:{size:11}}}}}})}
+e=document.getElementById('c4');if(e&&!e._d){e._d=1;new Chart(e,{type:'bar',data:{labels:['RTW','Maritime','Fuel Farms','Remote','Chemical'],datasets:[{label:'Budget',data:[178.2,124.5,82.3,42.8,18],backgroundColor:D,borderRadius:6},{label:'Actual',data:[191.4,135.8,88.6,46.1,20.4],backgroundColor:G,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false}},y:{title:{display:true,text:'AED M'}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:14,font:{size:11}}}}}})}
+e=document.getElementById('c5');if(e&&!e._d){e._d=1;new Chart(e,{type:'line',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'AR Days',data:[58,56,54,53,52,52],borderColor:R,backgroundColor:'rgba(239,68,68,.08)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#fff',pointBorderWidth:2},{label:'AP Days',data:[41,42,43,43,44,44],borderColor:G,backgroundColor:'transparent',tension:.4,pointRadius:5,pointBackgroundColor:'#fff',pointBorderWidth:2},{label:'Inventory Days',data:[26,27,28,29,30,30],borderColor:O,backgroundColor:'transparent',tension:.4,pointRadius:5,pointBackgroundColor:'#fff',pointBorderWidth:2},{label:'CCC',data:[43,41,39,39,38,38],borderColor:P,backgroundColor:'rgba(124,92,252,.06)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#fff',pointBorderWidth:2,borderDash:[5,5]}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false}},y:{title:{display:true,text:'Days'}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12,font:{size:11}}}}}})}
+e=document.getElementById('c6');if(e&&!e._d){e._d=1;new Chart(e,{type:'bar',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'On Time',data:[7,8,8,9,9,8],backgroundColor:G,borderRadius:4},{label:'Late',data:[2,1,1,1,0,1],backgroundColor:O,borderRadius:4},{label:'Overdue',data:[1,1,1,0,1,1],backgroundColor:R,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,title:{display:true,text:'Items'},ticks:{stepSize:2}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12,font:{size:11}}}}}})}
+e=document.getElementById('c7');if(e&&!e._d){e._d=1;new Chart(e,{type:'bar',data:{labels:['Oil Majors','ADNOC/ENOC','Defence','Chemical','Africa'],datasets:[{label:'Current',data:[18.4,12.1,8.6,3.2,5.4],backgroundColor:G,borderRadius:4},{label:'31-60',data:[6.2,3.8,4.2,1.1,2.8],backgroundColor:O,borderRadius:4},{label:'61-90',data:[1.8,.9,2.1,.3,1.6],backgroundColor:'#F97316',borderRadius:4},{label:'90+',data:[.4,0,1.4,0,.8],backgroundColor:R,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,title:{display:true,text:'AED M'}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12,font:{size:11}}}}}})}}
+go();
+</script></body></html>
